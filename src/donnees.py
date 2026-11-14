@@ -10,6 +10,7 @@ import os
 from abc import ABC, abstractmethod
 
 import pandas as pd
+from src.exceptions import DonneeInvalideError
 
 # --- Constantes -----------------------------------------------------------
 
@@ -50,7 +51,21 @@ def charger_csv(chemin: str = FICHIER_CSV) -> pd.DataFrame:
         DonneeInvalideError: si une colonne attendue manque.
     """
     # TODO (A)
-    raise NotImplementedError
+
+    if not os.path.exists(chemin):
+        raise FileNotFoundError(f"Fichier introuvable : {chemin}")
+    df = pd.read_csv(chemin, index_col=0)
+
+    for colonne in VARIABLES_CATEGORIELLES + VARIABLES_NUMERIQUES + [CIBLE]:
+        if colonne not in df.columns:
+            raise DonneeInvalideError(f"Colonne manquante dans le fichier : {colonne}")
+    return df
+
+
+
+   
+      
+    
 
 
 def nettoyer(df: pd.DataFrame) -> pd.DataFrame:
@@ -71,8 +86,15 @@ def nettoyer(df: pd.DataFrame) -> pd.DataFrame:
     Raises:
         DonneeInvalideError: si une vérification échoue.
     """
-    # TODO (A) — format de retour à confirmer (voir le document d'Aziz)
-    raise NotImplementedError
+    dfc = df.copy()
+    dfc = dfc[dfc["FGA"]> 0]
+    dfc = dfc[VARIABLES_CATEGORIELLES+VARIABLES_NUMERIQUES+[CIBLE]]
+    manque = dfc.isna().sum().sum()
+    if manque > 0:
+        raise DonneeInvalideError(f"Le fichier contient {manque} valeur(s) manquante(s)")
+    dfc = dfc.reset_index(drop=True)
+    return dfc
+  
 
 
 def tracer_exploration(df: pd.DataFrame, chemin_image: str) -> None:
