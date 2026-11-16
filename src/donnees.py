@@ -9,8 +9,9 @@ Contient :
 import os
 from abc import ABC, abstractmethod
 
+
 import pandas as pd
-from src.exceptions import DonneeInvalideError
+from src.exceptions import DonneeInvalideError,SaisieInvalideError
 
 # --- Constantes -----------------------------------------------------------
 
@@ -114,8 +115,17 @@ class Variable(ABC):
     """Variable d'entrée du modèle (classe abstraite)."""
 
     def __init__(self, nom: str, etiquette: str) -> None:
-        # TODO (A) : attributs protégés _nom et _etiquette
-        raise NotImplementedError
+         self._nom = nom
+         self._etiquette = etiquette
+    
+    @property
+    def nom(self) -> str:
+        return self._nom
+
+    @property
+    def etiquette(self) -> str:
+        return self._etiquette
+        
 
     @abstractmethod
     def valider(self, saisie: str):
@@ -135,19 +145,56 @@ class Variable(ABC):
     def vers_dict(self) -> dict:
         """Retourne la description de la variable pour le JSON de métadonnées."""
 
-    # TODO (A) : __repr__ (méthode spéciale exigée au chapitre 9-11)
+    
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}(nom ={self.nom!r}, etiquette ={self.etiquette!r})"
+        
 
 
 class VariableNumerique(Variable):
     """Variable numérique avec un intervalle autorisé [minimum, maximum]."""
 
     def __init__(self, nom: str, etiquette: str, minimum: float, maximum: float) -> None:
-        # TODO (A)
-        raise NotImplementedError
+        super().__init__(nom,etiquette)
+        if minimum > maximum:
+                    raise ValueError(f"le minimum est plus grand que le maximum ({minimum} > {maximum})")
+        self._minimum = minimum
+        self._maximum = maximum
+
+    @property
+    def minimum(self) -> float:
+        return self._minimum
+
+    @property
+    def maximum(self) -> float:
+            return self._maximum
+
+        
+        
 
     def valider(self, saisie: str) -> float:
-        # TODO (A) : vide ? non numérique ? hors intervalle ? → SaisieInvalideError
-        raise NotImplementedError
+        temp = ""
+        for lettre in saisie:
+            if lettre == " ":
+                continue
+            if lettre == ",":
+                temp+= "."
+                continue
+            temp += lettre
+
+        saisie = temp
+        if len(saisie) == 0:
+            raise SaisieInvalideError(f"{self.etiquette} est vide")
+        try:
+            fsaisie =float(saisie)
+        except ValueError:
+            raise SaisieInvalideError(f"{self.etiquette} n'est pas un nombre")
+        if fsaisie < self.minimum:
+            raise SaisieInvalideError(f"{self.etiquette} est trop petit, {self.etiquette} doit etre entre {self.minimum} et {self.maximum}")
+        if fsaisie > self.maximum:
+            raise SaisieInvalideError(f"{self.etiquette} est trop grand, {self.etiquette} doit etre entre {self.minimum} et {self.maximum}")
+        return fsaisie
+    
 
     def vers_dict(self) -> dict:
         # TODO (A) : {"nom", "type": "numerique", "etiquette", "min", "max"}
