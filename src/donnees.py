@@ -197,8 +197,9 @@ class VariableNumerique(Variable):
     
 
     def vers_dict(self) -> dict:
-        # TODO (A) : {"nom", "type": "numerique", "etiquette", "min", "max"}
-        raise NotImplementedError
+        vnum_dict = {"nom":self.nom,"type":"numerique","etiquette":self.etiquette,"min":self.minimum,"max":self.maximum}
+        return vnum_dict
+        
 
 
 class VariableCategorielle(Variable):
@@ -206,15 +207,25 @@ class VariableCategorielle(Variable):
 
     def __init__(self, nom: str, etiquette: str, valeurs: list[str]) -> None:
         # TODO (A)
-        raise NotImplementedError
+        super().__init__(nom,etiquette)
+        self._valeurs = valeurs
+
+    @property
+    def valeurs(self) -> list:
+        return self._valeurs
 
     def valider(self, saisie: str) -> str:
-        # TODO (A) : la saisie doit être dans self._valeurs
-        raise NotImplementedError
+        saisie = saisie.strip().upper()
+        if not saisie in self.valeurs:
+            raise SaisieInvalideError (f"{self.etiquette} doit etre parmis {','.join(self.valeurs)}")
+        return saisie
+        
+       
 
     def vers_dict(self) -> dict:
-        # TODO (A) : {"nom", "type": "categorielle", "etiquette", "valeurs"}
-        raise NotImplementedError
+        vcat_dict = {"nom":self.nom,"type":"categorielle","etiquette":self.etiquette,"valeurs":self.valeurs}
+        return vcat_dict
+        
 
 
 def variable_depuis_dict(description: dict) -> Variable:
