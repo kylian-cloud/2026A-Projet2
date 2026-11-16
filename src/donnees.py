@@ -234,8 +234,13 @@ def variable_depuis_dict(description: dict) -> Variable:
     Raises:
         DonneeInvalideError: si le type est inconnu.
     """
-    # TODO (A)
-    raise NotImplementedError
+    if description["type"] == "numerique":
+        return VariableNumerique(description["nom"],description["etiquette"],description["min"],description["max"])
+    elif description["type"] == "categorielle":
+        return VariableCategorielle(description["nom"],description["etiquette"],description["valeurs"])
+    else:
+        raise DonneeInvalideError(f"{description['type']} n'est pas un type de variable reconnu")
+    
 
 
 # --- Jeu de données (composition) ---------------------------------------
