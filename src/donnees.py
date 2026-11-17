@@ -11,6 +11,7 @@ from abc import ABC, abstractmethod
 
 
 import pandas as pd
+import matplotlib.pyplot as plt 
 from src.exceptions import DonneeInvalideError,SaisieInvalideError
 
 # --- Constantes -----------------------------------------------------------
@@ -105,8 +106,18 @@ def tracer_exploration(df: pd.DataFrame, chemin_image: str) -> None:
         df: DataFrame propre.
         chemin_image: chemin du fichier PNG à créer.
     """
-    # TODO (A)
-    raise NotImplementedError
+    fig, ax = plt.subplots()
+    for poste in sorted(df["POS"].unique()):
+        dfc = df[df["POS"] == poste]
+        ax.scatter(dfc["PTS"], dfc["rankings"], label=poste, alpha=0.5, s=10)
+
+    ax.set_title("Note 2K selon les points par match")
+    ax.set_xlabel("Points par match")
+    ax.set_ylabel("Note 2K")
+    ax.legend(title="Poste")
+    fig.savefig(chemin_image)
+    plt.close(fig)
+    
 
 
 # --- Classes de variables (héritage + polymorphisme) --------------------
@@ -249,23 +260,32 @@ class JeuDeDonnees:
     """Regroupe le DataFrame propre et la liste des Variable qui le décrivent."""
 
     def __init__(self, df_propre: pd.DataFrame) -> None:
-        # TODO (A) : self._df et self._variables (construites à partir du DataFrame :
-        #            min/max pour les numériques, valeurs uniques pour les catégorielles)
-        raise NotImplementedError
+        self._df = df_propre
+        self._variables = []
+        for colonne in VARIABLES_CATEGORIELLES:
+            valeurs = sorted(df_propre[colonne].unique())
+            self._variables.append(VariableCategorielle(colonne,ETIQUETTES[colonne],valeurs))
+        for colonne in VARIABLES_NUMERIQUES:
+            self._variables.append(VariableNumerique(colonne,ETIQUETTES[colonne],float(df_propre[colonne].min()),float(df_propre[colonne].max())))
+
+
+    
+  
+
 
     @property
     def variables(self) -> list[Variable]:
-        # TODO (A)
-        raise NotImplementedError
+        return self._variables
+        
 
     def entrees(self) -> pd.DataFrame:
         """Retourne X : les colonnes d'entrée."""
-        # TODO (A)
-        raise NotImplementedError
+        return self._df[VARIABLES_CATEGORIELLES+VARIABLES_NUMERIQUES]
 
     def cible(self) -> pd.Series:
         """Retourne y : la colonne rankings."""
-        # TODO (A)
-        raise NotImplementedError
+        return self._df[CIBLE]
 
-    # TODO (A) : __len__ (nombre de lignes)
+   
+    def __len__(self) -> int:
+        return len(self._df)
