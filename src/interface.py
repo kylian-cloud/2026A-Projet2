@@ -16,6 +16,7 @@ Rappel Streamlit : tout le script est ré-exécuté à chaque clic.
 import streamlit as st
 import matplotlib.pyplot as plt
 
+
 from src import donnees, historique, modele
 from src.exceptions import ModeleIntrouvableError, SaisieInvalideError
 
@@ -40,8 +41,16 @@ class Application:
         - VariableCategorielle → st.selectbox(valeurs)
         Idée : une méthode `afficher_champ()` dans chaque classe Variable (polymorphisme).
         """
-        # TODO (A)
-        raise NotImplementedError
+        saisie = {}
+        for i in self._variables:
+            if isinstance(i,donnees.VariableCategorielle):
+                userinput = st.selectbox(i.etiquette, i.valeurs)
+                
+            else:
+                userinput = st.text_input(i.etiquette)
+            
+            saisie[i.nom] = userinput
+        return saisie
 
     def valider_saisies(self, saisies: dict) -> dict:
         """Valide chaque saisie avec Variable.valider.
@@ -49,13 +58,15 @@ class Application:
         Raises:
             SaisieInvalideError: au premier champ invalide.
         """
-        # TODO (A)
-        raise NotImplementedError
+        cleandict = {}
+        for variable in self._variables:
+            saisies_brute = saisies[variable.nom]
+            cleandict[variable.nom] = variable.valider(saisies_brute)
+        return cleandict
 
     def afficher_avertissement(self) -> None:
         """Rappelle que l'outil est un exercice pédagogique (st.info)."""
-        # TODO (A)
-        raise NotImplementedError
+        st.info("Cet outils est un exercice pédagogique fait dans le cadre du cours d'INF1007, la note est une estimation a partir des statistique des saison de 2014 a 2020 pas une note officielle de 2K ")
 
     # --- Partie B : prédiction, graphique, historique --------------------
 
