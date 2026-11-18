@@ -1,4 +1,4 @@
-# [Nom du projet] — Prédire la note NBA 2K d'un joueur à partir de ses vraies stats
+# Prédire la note NBA 2K d'un joueur à partir de ses vraies stats
 
 Projet 2 INF1007 (A2026) — Kylian Amani (2445524) et Aziz Boly (2465875)
 

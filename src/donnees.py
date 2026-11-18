@@ -9,7 +9,10 @@ Contient :
 import os
 from abc import ABC, abstractmethod
 
+
 import pandas as pd
+import matplotlib.pyplot as plt 
+from src.exceptions import DonneeInvalideError,SaisieInvalideError
 
 # --- Constantes -----------------------------------------------------------
 
@@ -50,7 +53,21 @@ def charger_csv(chemin: str = FICHIER_CSV) -> pd.DataFrame:
         DonneeInvalideError: si une colonne attendue manque.
     """
     # TODO (A)
-    raise NotImplementedError
+
+    if not os.path.exists(chemin):
+        raise FileNotFoundError(f"Fichier introuvable : {chemin}")
+    df = pd.read_csv(chemin, index_col=0)
+
+    for colonne in VARIABLES_CATEGORIELLES + VARIABLES_NUMERIQUES + [CIBLE]:
+        if colonne not in df.columns:
+            raise DonneeInvalideError(f"Colonne manquante dans le fichier : {colonne}")
+    return df
+
+
+
+   
+      
+    
 
 
 def nettoyer(df: pd.DataFrame) -> pd.DataFrame:
@@ -71,8 +88,15 @@ def nettoyer(df: pd.DataFrame) -> pd.DataFrame:
     Raises:
         DonneeInvalideError: si une vérification échoue.
     """
-    # TODO (A) — format de retour à confirmer (voir le document d'Aziz)
-    raise NotImplementedError
+    dfc = df.copy()
+    dfc = dfc[dfc["FGA"]> 0]
+    dfc = dfc[VARIABLES_CATEGORIELLES+VARIABLES_NUMERIQUES+[CIBLE]]
+    manque = dfc.isna().sum().sum()
+    if manque > 0:
+        raise DonneeInvalideError(f"Le fichier contient {manque} valeur(s) manquante(s)")
+    dfc = dfc.reset_index(drop=True)
+    return dfc
+  
 
 
 def tracer_exploration(df: pd.DataFrame, chemin_image: str) -> None:
@@ -82,8 +106,18 @@ def tracer_exploration(df: pd.DataFrame, chemin_image: str) -> None:
         df: DataFrame propre.
         chemin_image: chemin du fichier PNG à créer.
     """
-    # TODO (A)
-    raise NotImplementedError
+    fig, ax = plt.subplots()
+    for poste in sorted(df["POS"].unique()):
+        dfc = df[df["POS"] == poste]
+        ax.scatter(dfc["PTS"], dfc["rankings"], label=poste, alpha=0.5, s=10)
+
+    ax.set_title("Note 2K selon les points par match")
+    ax.set_xlabel("Points par match")
+    ax.set_ylabel("Note 2K")
+    ax.legend(title="Poste")
+    fig.savefig(chemin_image)
+    plt.close(fig)
+    
 
 
 # --- Classes de variables (héritage + polymorphisme) --------------------
@@ -92,8 +126,17 @@ class Variable(ABC):
     """Variable d'entrée du modèle (classe abstraite)."""
 
     def __init__(self, nom: str, etiquette: str) -> None:
-        # TODO (A) : attributs protégés _nom et _etiquette
-        raise NotImplementedError
+         self._nom = nom
+         self._etiquette = etiquette
+    
+    @property
+    def nom(self) -> str:
+        return self._nom
+
+    @property
+    def etiquette(self) -> str:
+        return self._etiquette
+        
 
     @abstractmethod
     def valider(self, saisie: str):
@@ -113,23 +156,61 @@ class Variable(ABC):
     def vers_dict(self) -> dict:
         """Retourne la description de la variable pour le JSON de métadonnées."""
 
-    # TODO (A) : __repr__ (méthode spéciale exigée au chapitre 9-11)
+    
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}(nom ={self.nom!r}, etiquette ={self.etiquette!r})"
+        
 
 
 class VariableNumerique(Variable):
     """Variable numérique avec un intervalle autorisé [minimum, maximum]."""
 
     def __init__(self, nom: str, etiquette: str, minimum: float, maximum: float) -> None:
-        # TODO (A)
-        raise NotImplementedError
+        super().__init__(nom,etiquette)
+        if minimum > maximum:
+                    raise ValueError(f"le minimum est plus grand que le maximum ({minimum} > {maximum})")
+        self._minimum = minimum
+        self._maximum = maximum
+
+    @property
+    def minimum(self) -> float:
+        return self._minimum
+
+    @property
+    def maximum(self) -> float:
+            return self._maximum
+
+        
+        
 
     def valider(self, saisie: str) -> float:
-        # TODO (A) : vide ? non numérique ? hors intervalle ? → SaisieInvalideError
-        raise NotImplementedError
+        temp = ""
+        for lettre in saisie:
+            if lettre == " ":
+                continue
+            if lettre == ",":
+                temp+= "."
+                continue
+            temp += lettre
+
+        saisie = temp
+        if len(saisie) == 0:
+            raise SaisieInvalideError(f"{self.etiquette} est vide")
+        try:
+            fsaisie =float(saisie)
+        except ValueError:
+            raise SaisieInvalideError(f"{self.etiquette} n'est pas un nombre")
+        if fsaisie < self.minimum:
+            raise SaisieInvalideError(f"{self.etiquette} est trop petit, {self.etiquette} doit etre entre {self.minimum} et {self.maximum}")
+        if fsaisie > self.maximum:
+            raise SaisieInvalideError(f"{self.etiquette} est trop grand, {self.etiquette} doit etre entre {self.minimum} et {self.maximum}")
+        return fsaisie
+    
 
     def vers_dict(self) -> dict:
-        # TODO (A) : {"nom", "type": "numerique", "etiquette", "min", "max"}
-        raise NotImplementedError
+        vnum_dict = {"nom":self.nom,"type":"numerique","etiquette":self.etiquette,"min":self.minimum,"max":self.maximum}
+        return vnum_dict
+        
 
 
 class VariableCategorielle(Variable):
@@ -137,15 +218,25 @@ class VariableCategorielle(Variable):
 
     def __init__(self, nom: str, etiquette: str, valeurs: list[str]) -> None:
         # TODO (A)
-        raise NotImplementedError
+        super().__init__(nom,etiquette)
+        self._valeurs = valeurs
+
+    @property
+    def valeurs(self) -> list:
+        return self._valeurs
 
     def valider(self, saisie: str) -> str:
-        # TODO (A) : la saisie doit être dans self._valeurs
-        raise NotImplementedError
+        saisie = saisie.strip().upper()
+        if not saisie in self.valeurs:
+            raise SaisieInvalideError (f"{self.etiquette} doit etre parmis {','.join(self.valeurs)}")
+        return saisie
+        
+       
 
     def vers_dict(self) -> dict:
-        # TODO (A) : {"nom", "type": "categorielle", "etiquette", "valeurs"}
-        raise NotImplementedError
+        vcat_dict = {"nom":self.nom,"type":"categorielle","etiquette":self.etiquette,"valeurs":self.valeurs}
+        return vcat_dict
+        
 
 
 def variable_depuis_dict(description: dict) -> Variable:
@@ -154,8 +245,13 @@ def variable_depuis_dict(description: dict) -> Variable:
     Raises:
         DonneeInvalideError: si le type est inconnu.
     """
-    # TODO (A)
-    raise NotImplementedError
+    if description["type"] == "numerique":
+        return VariableNumerique(description["nom"],description["etiquette"],description["min"],description["max"])
+    elif description["type"] == "categorielle":
+        return VariableCategorielle(description["nom"],description["etiquette"],description["valeurs"])
+    else:
+        raise DonneeInvalideError(f"{description['type']} n'est pas un type de variable reconnu")
+    
 
 
 # --- Jeu de données (composition) ---------------------------------------
@@ -164,23 +260,32 @@ class JeuDeDonnees:
     """Regroupe le DataFrame propre et la liste des Variable qui le décrivent."""
 
     def __init__(self, df_propre: pd.DataFrame) -> None:
-        # TODO (A) : self._df et self._variables (construites à partir du DataFrame :
-        #            min/max pour les numériques, valeurs uniques pour les catégorielles)
-        raise NotImplementedError
+        self._df = df_propre
+        self._variables = []
+        for colonne in VARIABLES_CATEGORIELLES:
+            valeurs = sorted(df_propre[colonne].unique())
+            self._variables.append(VariableCategorielle(colonne,ETIQUETTES[colonne],valeurs))
+        for colonne in VARIABLES_NUMERIQUES:
+            self._variables.append(VariableNumerique(colonne,ETIQUETTES[colonne],float(df_propre[colonne].min()),float(df_propre[colonne].max())))
+
+
+    
+  
+
 
     @property
     def variables(self) -> list[Variable]:
-        # TODO (A)
-        raise NotImplementedError
+        return self._variables
+        
 
     def entrees(self) -> pd.DataFrame:
         """Retourne X : les colonnes d'entrée."""
-        # TODO (A)
-        raise NotImplementedError
+        return self._df[VARIABLES_CATEGORIELLES+VARIABLES_NUMERIQUES]
 
     def cible(self) -> pd.Series:
         """Retourne y : la colonne rankings."""
-        # TODO (A)
-        raise NotImplementedError
+        return self._df[CIBLE]
 
-    # TODO (A) : __len__ (nombre de lignes)
+   
+    def __len__(self) -> int:
+        return len(self._df)
