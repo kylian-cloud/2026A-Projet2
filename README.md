@@ -39,17 +39,21 @@ src/
 <!-- TODO : schéma des classes (héritage, composition) -->
 
 ## Résultats du modèle
-<!-- TODO (B) : métrique sur l'ensemble de test, comparée à la référence -->
+Les deux scores sont des RMSE calculées sur le même ensemble de test. La référence
+prédit la moyenne des notes d'entraînement; la forêt aléatoire encode `POS` dans
+un pipeline scikit-learn. Les valeurs exactes sont affichées par la commande
+d'entraînement et enregistrées dans `modeles/metadonnees.json`.
+
 | Modèle | Métrique | Valeur |
 |---|---|---|
-| Référence (moyenne) | | |
-| Modèle retenu | | |
+| Référence (moyenne) | RMSE | `metrique.reference` dans le JSON |
+| Forêt aléatoire | RMSE | `metrique.modele` dans le JSON |
 
 ## Couverture des tests
 <!-- TODO : résultat de `coverage report` -->
 
 ## Outil du chapitre 7
-<!-- TODO (B) : une phrase, ex. « Le décorateur @chronometrer mesure la durée de l'entraînement. » -->
+Le décorateur `@chronometrer` mesure et affiche la durée de l'entraînement du modèle.
 
 ## Documentation consultée
 <!-- Au moins 3 pages : pandas, scikit-learn, technologie d'interface -->

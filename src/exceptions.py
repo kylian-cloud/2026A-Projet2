@@ -13,5 +13,5 @@ Exigence du chapitre 8 : au moins une exception personnalisée, levée avec `rai
 #            Le message doit être compréhensible par un non-informaticien.
 
 
-# TODO (B) : ModeleIntrouvableError — hérite de Exception.
-#            Levée quand le fichier du modèle ou des métadonnées n'existe pas.
+class ModeleIntrouvableError(Exception):
+    """Le modèle ou ses métadonnées ne sont pas disponibles sur le disque."""
