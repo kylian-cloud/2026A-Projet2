@@ -2,10 +2,23 @@
 
 > Au moins 5 entrées. Au moins une entrée doit montrer une vérification qui a changé une décision.
 
+## Partie A — Kylian (données, validation des saisies, tests des données, documentation)
+
 | # | Outil | Ce que nous avons demandé | Réponse reçue | Vérification faite (documentation, test, exécution) | Décision (gardé, modifié, rejeté) |
 |---|---|---|---|---|---|
-| 1 | | | | | |
-| 2 | | | | | |
-| 3 | | | | | |
-| 4 | | | | | |
-| 5 | | | | | |
+| 1 | Claude | Évaluer l'idée « prédire la note NBA 2K d'un joueur » | L'idée est viable, mais prédire la note à partir des attributs du jeu (tir, dribble…) reviendrait à retrouver la formule de 2K, sans rien à analyser. Suggestion : partir des vraies statistiques NBA | Discussion avec l'auxiliaire (validation A) ; recherche d'un jeu de données qui contient à la fois les stats réelles et la note 2K | **Modifié** : l'angle du projet devient « vraies stats → note 2K » |
+| 2 | Claude | Ajouter le poste des joueurs (`POS`) au CSV, qui n'en contenait pas | Récupération des postes sur Basketball-Reference (saisons 2014-15 à 2019-20) et fusion par nom de joueur et saison | Comptage des lignes sans poste après la fusion : 11 lignes (3 joueurs aux noms écrits différemment), complétées à la main ; vérification qu'il ne reste aucune valeur manquante | **Gardé**, avec les 11 corrections manuelles notées dans DECISIONS.md |
+| 3 | Claude | Générer la structure du projet et le squelette des modules | Dossiers, signatures des fonctions et classes avec docstrings, `requirements.txt`, workflow CI, modèles de README, DECISIONS et journal | Exécution de `pytest` (1 test passé) et CI verte sur GitHub ; structure comparée à celle suggérée par l'énoncé | **Gardé**, puis modifié : passage de Tkinter à Streamlit, donc `interface.py` et `main.py` ont été adaptés |
+| 4 | Claude | Explications et corrections pendant l'écriture de `donnees.py` (héritage, `@abstractmethod`, `@property`, `super()`, filtres pandas) | Explication des concepts et liste des erreurs dans notre code (ex. boucle de vérification des colonnes à l'envers dans `charger_csv`, `+=` sur une clé absente, propriété qui s'appelait elle-même) | Exécution de chaque fonction après correction (commandes `python -c` et résultats attendus, ex. `(2408, 11)` pour `nettoyer`) | **Modifié** : le code a été écrit par nous puis corrigé à partir des explications |
+| 5 | Claude | Vérifier notre filtre de `nettoyer()`, qui retirait les lignes où `FG%` = 0 | Le filtre devait porter sur `FGA` (tirs tentés) et non sur `FG%` (pourcentage réussi) | Comptage dans les données : 14 lignes avec `FG%` = 0, dont seulement 4 sans aucun tir tenté ; les 10 autres ont un vrai 0 % et sont valides | **Modifié** : filtre sur `FGA > 0`, 2 408 lignes au lieu de 2 398 |
+| 6 | Claude | Pourquoi notre code marchait sur notre ordinateur mais allait faire échouer la CI | Une f-string qui contient les mêmes guillemets à l'intérieur (`f"{",".join(...)}"`) est acceptée par Python 3.12+ mais pas par Python 3.11, la version de la CI | Compilation du fichier avec Python 3.11 : `SyntaxError` confirmée, alors que le code s'exécutait sans erreur sous Python 3.14 | **Modifié** : guillemets simples à l'intérieur des f-strings ; CI verte |
+| 7 | Claude | Écrire les tests de `tests/test_donnees.py` | 21 tests (cas usuels, limites et d'erreur) sur la validation des saisies, `variable_depuis_dict`, `charger_csv`, `nettoyer` et `JeuDeDonnees`, avec des fixtures et `pytest.mark.parametrize` | Exécution : 34 tests passés au total ; relecture de chaque test pour vérifier qu'il teste bien un comportement attendu (ex. bornes 19 et 41 acceptées, 18,9 et 41,1 refusées) | **Gardé** |
+| 8 | Claude | Rédiger le README et le schéma des classes | Texte du README, schéma en draw.io et en PNG | Relecture : la phrase « 93 % de couverture sur les modules de logique » était fausse, car le total de `coverage report` inclut les fichiers de tests ; sur la logique seule, c'est environ 90 %. Les nombres du schéma étaient aussi illisibles | **Modifié** : les deux chiffres sont précisés dans le README ; schéma corrigé |
+
+## Partie B — Aziz (modèle, historique, point d'entrée, tests du modèle)
+
+| # | Outil | Ce que nous avons demandé | Réponse reçue | Vérification faite (documentation, test, exécution) | Décision (gardé, modifié, rejeté) |
+|---|---|---|---|---|---|
+| 9 | | | | | |
+| 10 | | | | | |
+| 11 | | | | | |
