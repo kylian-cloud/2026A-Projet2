@@ -9,14 +9,14 @@ import os
 import subprocess
 import sys
 
+from src import donnees
+from src.modele import Modele
+
 FICHIER_INTERFACE = os.path.join(os.path.dirname(__file__), "interface.py")
 
 
 def entrainer_et_sauvegarder() -> None:
     """charger_csv → nettoyer → JeuDeDonnees → Modele (séparer, référence, entraîner) → sauvegarder."""
-    from src import donnees
-    from src.modele import Modele
-
     dataframe = donnees.nettoyer(donnees.charger_csv())
     jeu = donnees.JeuDeDonnees(dataframe)
 

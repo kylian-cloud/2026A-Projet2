@@ -39,15 +39,21 @@ src/
 <!-- TODO : schéma des classes (héritage, composition) -->
 
 ## Résultats du modèle
-Les deux scores sont des RMSE calculées sur le même ensemble de test. La référence
-prédit la moyenne des notes d'entraînement; la forêt aléatoire encode `POS` dans
-un pipeline scikit-learn. Les valeurs exactes sont affichées par la commande
-d'entraînement et enregistrées dans `modeles/metadonnees.json`.
+RMSE calculées sur le même ensemble de test (25 % des données, graine 42). La référence
+prédit toujours la moyenne des notes d'entraînement ; la forêt aléatoire encode `POS`
+dans un pipeline scikit-learn.
 
 | Modèle | Métrique | Valeur |
 |---|---|---|
-| Référence (moyenne) | RMSE | `metrique.reference` dans le JSON |
-| Forêt aléatoire | RMSE | `metrique.modele` dans le JSON |
+| Référence (moyenne) | RMSE (test) | 5,7 |
+| Forêt aléatoire | RMSE (test) | 2,1 |
+| Forêt aléatoire | RMSE (entraînement) | 0,8 |
+
+Le modèle se trompe en moyenne d'environ 2 points sur 99, soit environ 2,7 fois moins que la
+référence. L'écart entre l'entraînement (0,8) et le test (2,1) montre un léger
+sur-apprentissage, habituel pour une forêt aléatoire. Limite connue : les joueurs blessés
+qui ont peu joué (ex. 1 match) sont fortement sous-estimés, car la note 2K reflète aussi
+leur réputation.
 
 ## Couverture des tests
 <!-- TODO : résultat de `coverage report` -->

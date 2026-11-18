@@ -17,7 +17,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 
 from src import donnees, historique, modele
-from src.exceptions import ModeleIntrouvableError
+from src.exceptions import ModeleIntrouvableError, SaisieInvalideError
 
 
 class Application:
@@ -64,8 +64,6 @@ class Application:
 
         try / except SaisieInvalideError → st.error(message clair), jamais de traceback.
         """
-        from src.exceptions import SaisieInvalideError
-
         try:
             entrees = self.valider_saisies(saisies)
             note = self._modele.predire(entrees)

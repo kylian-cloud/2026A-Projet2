@@ -20,6 +20,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
+from src.donnees import CIBLE
 from src.exceptions import ModeleIntrouvableError
 
 DOSSIER_MODELES = os.path.join(os.path.dirname(os.path.dirname(__file__)), "modeles")
@@ -27,7 +28,6 @@ FICHIER_MODELE = os.path.join(DOSSIER_MODELES, "modele.joblib")
 FICHIER_METADONNEES = os.path.join(DOSSIER_MODELES, "metadonnees.json")
 GRAINE = 42
 NOM_MODELE = "Forêt aléatoire"
-CIBLE = "rankings"
 
 
 def chronometrer(fonction):
