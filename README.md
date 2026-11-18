@@ -116,10 +116,20 @@ sur-apprentissage, habituel pour une forêt aléatoire.
 - les données s'arrêtent à la saison 2019-20.
 
 ## Couverture des tests
-Couverture de **93 %** sur les modules de logique (`donnees.py`, `modele.py`, `historique.py`,
-`exceptions.py`), mesurée avec `coverage run -m pytest` puis `coverage report`.
+Mesurée avec `coverage run -m pytest` puis `coverage report` (34 tests, tous réussis) :
 
-<!-- TODO : coller ici le tableau affiché par `coverage report` -->
+| Fichier | Lignes | Non couvertes | Couverture |
+|---|---|---|---|
+| `src/donnees.py` | 131 | 12 | 91 % |
+| `src/exceptions.py` | 3 | 0 | 100 % |
+| `src/historique.py` | 25 | 2 | 92 % |
+| `src/modele.py` | 128 | 16 | 86 % |
+| `tests/` (3 fichiers) et `conftest.py` | 155 | 0 | 100 % |
+| **Total** | **432** | **30** | **93 %** |
+
+Sur les seuls modules de logique (`donnees.py`, `exceptions.py`, `historique.py`, `modele.py`),
+la couverture est d'environ **90 %** (257 lignes couvertes sur 287) : le total de 93 % inclut
+aussi les fichiers de tests eux-mêmes.
 
 L'interface Streamlit (`interface.py`) et le point d'entrée (`main.py`) ne sont pas testés
 automatiquement : ils ont été vérifiés à la main en lançant l'application (cas normal, saisie
