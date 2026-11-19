@@ -19,6 +19,7 @@
 
 | # | Outil | Ce que nous avons demandé | Réponse reçue | Vérification faite (documentation, test, exécution) | Décision (gardé, modifié, rejeté) |
 |---|---|---|---|---|---|
-| 9 | | | | | |
-| 10 | | | | | |
-| 11 | | | | | |
+
+| 9 | Codex | Compléter l’entraînement et encoder le poste POS. | Pipeline avec RandomForestRegressor et OneHotEncoder; comparaison à DummyRegressor avec la RMSE. | Les catégories de POS ont été vérifiées dans le CSV. Tests écrits, mais non exécutés. | Gardé; tests à exécuter après l’intégration. |
+| 10 | Codex | Définir la sauvegarde et le rechargement du modèle. | Pipeline enregistré avec joblib; métadonnées enregistrées en JSON. | DECISIONS.md précise que le JSON doit contenir les variables, la cible, le modèle et la métrique; le format a été adapté en conséquence. | Modifié pour suivre le format décidé. |
+| 11 | Codex | Compléter l’historique, l’interface et le point d’entrée. | Ajout et lecture du CSV; affichage de la prédiction; commandes pour entraîner ou lancer Streamlit. | git diff --check réussi. Tests non exécutés; l’intégration dépend encore de la partie A. | Gardé; validation complète à faire après l’intégration. |

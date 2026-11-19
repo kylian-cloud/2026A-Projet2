@@ -19,7 +19,7 @@ def ajouter_prediction(entrees: dict, note_predite: float, chemin: str = FICHIER
         chemin: fichier de l'historique.
     """
     ligne = dict(entrees)
-    ligne["note_predite"] = float(note_predite)
+    ligne["note_predite"] = round(float(note_predite),1)
 
     fichier_existant = os.path.exists(chemin) and os.path.getsize(chemin) > 0
     if fichier_existant:
